@@ -1,0 +1,57 @@
+---
+
+- hosts: "all"
+  become: true
+
+  tasks:
+
+  - name: Update packages
+    apt:
+      update_cache: yes
+      upgrade: "yes"
+
+  - name: Install essential packages
+    package:
+      name:
+      - htop
+      - neofetch
+      state: latest
+  
+  - name: Install docker dependencies
+    apt:
+      name: "{{item}}"
+      state: present
+      update_cache: yes
+    loop:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+  - name: Add docker gpg key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+  - name: Add docker repo
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu jammy stable
+      state: present
+  - name: Install docker
+    apt:
+      name: "{{item}}"
+      state: latest
+      update_cache: yes
+    loop:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+  - name: Start docker
+    service:
+      name: docker
+      state: started
+      enabled: yes
+  handlers:
+  - name: Restart docker
+    service: 
+      name: docker 
+      state: restarted
