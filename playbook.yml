@@ -50,8 +50,11 @@
       name: docker
       state: started
       enabled: yes
+  - name: Add vagrant user to docker group
+    shell: usermod -aG docker vagrant
   handlers:
   - name: Restart docker
     service: 
       name: docker 
       state: restarted
+
